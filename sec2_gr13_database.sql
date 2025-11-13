@@ -1,5 +1,6 @@
-
+create database linegirl;
 use linegirl;
+
 
 
 
@@ -26,7 +27,7 @@ VALUES
   'test_customer_1', 
   'customer1@example.com', 
   '0810001111', 
-  '$2b$10$E.qJ4BqY9.F/C.3G5b.gZ.B1e.Y/C.3G5b.gZ.B1e.Y/C.3G5b.gZ', 
+  'password123', 
   'customer', 
   NOW()
 );
@@ -38,7 +39,7 @@ VALUES
   'test_shop_1', 
   'shop1@example.com', 
   '0820002222', 
-  '$2b$10$E.qJ4BqY9.F/C.3G5b.gZ.B1e.Y/C.3G5b.gZ.B1e.Y/C.3G5b.gZ', 
+  'password123', 
   'shop', 
   NOW()
 );
@@ -50,7 +51,7 @@ VALUES
   'test_shop_2', 
   'shop2@example.com', 
   '0820003333', 
-  '$2b$10$E.qJ4BqY9.F/C.3G5b.gZ.B1e.Y/C.3G5b.gZ.B1e.Y/C.3G5b.gZ', 
+  'password123', 
   'shop', 
   NOW()
 );
@@ -63,7 +64,7 @@ VALUES
   'test_admin_1', 
   'admin1@example.com', 
   '0820004444', 
-  '$2b$10$E.qJ4BqY9.F/C.3G5b.gZ.B1e.Y/C.3G5b.gZ.B1e.Y/C.3G5b.gZ', 
+  'password123', 
   'admin', 
   NOW()
 );
