@@ -17,8 +17,7 @@ CREATE TABLE users (
 );
 
 
--- รหัสผ่านสำหรับทั้งสอง User คือ "password123"
--- (นี่คือ Hash ของ 'password123' -> $2b$10$E.qJ4BqY9.F/C.3G5b.gZ.B1e.Y/C.3G5b.gZ.B1e.Y/C.3G5b.gZ)
+
 
 -- ตัวอย่างที่ 1: เพิ่มผู้ใช้ที่เป็น Customer
 INSERT INTO users (username, email, phone, password, role, created_at) 

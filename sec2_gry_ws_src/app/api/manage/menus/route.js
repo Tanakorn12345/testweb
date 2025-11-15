@@ -25,58 +25,7 @@ async function verifyShopOwner(request) {
     }
 }
 
-// // Testing Get All Menus (Shop Owner)
-// // method: GET
-// // URL: http://localhost:3001/api/manage/menus
-// // (ต้อง Login เป็น Shop ก่อน)
-//
-
-
-// // Testing Get  Menus (id) (Shop Owner)
-// // method: GET
-// // URL: http://localhost:3001/api/manage/menus/1
-// // (ต้อง Login เป็น Shop ก่อน)
-//
-
-
-// // Testing Insert a new Menu (Shop Owner)
-// // method: POST
-// // URL: http://localhost:3001/api/manage/menus
-// // body: raw JSON
-// // {
-// //    "name": "French Fries",
- // //   "description": "Crispy fries",
-// //    "price": 80,
- // //   "category": "Main course",
-  // //  "is_available": true,
- // //   "imageBase64": null
-// //    }
-//
-
-
-// // Testing Update  Menu (Shop Owner)
-// // method: PUT
-// // URL: http://localhost:3001/api/manage/menus/1
-// // body: raw JSON
-// // {
-// //    "name": "French Friessss",
- // //   "description": "Crispy friessss",
-// //    "price": 802,
- // //   "category": "Main course",
-  // //  "is_available": true,
- // //   "imageBase64": null
-// //    }
-//
-
-
-
-
-// // Testing Delete  Menu (Shop Owner)
-// // method: DELETE
-// // URL: http://localhost:3001/api/manage/menus/1
-
-
-
+// (Test Cases ... )
 
 // --- API Handler สำหรับ GET (ดึงเมนูทั้งหมดของร้าน) ---
 export async function GET(request) {
@@ -125,14 +74,6 @@ export async function GET(request) {
 }
 
 
-
-
-
-
-
-
-
-// --- 🚀 ฟังก์ชัน POST ใหม่ (เพิ่มเมนู) ---
 export async function POST(request) {
     const authCheck = await verifyShopOwner(request);
     if (!authCheck.isShopOwner) {
@@ -143,13 +84,47 @@ export async function POST(request) {
 
     let connection;
     try {
-        const data = await request.json();
-        const { name, description, price, category, is_available, imageBase64 } = data;
+        // --- 1. [HYBRID LOGIC] ตรวจสอบ Content-Type ---
+        let name, description, price, category, is_available;
+        let imageFile = null; // สำหรับ FormData
+        let imageBase64 = null; // สำหรับ JSON
 
+        const contentType = request.headers.get('content-type') || '';
+
+        if (contentType.includes('multipart/form-data')) {
+            // --- Path 1: Frontend ส่งมา (หรือ Postman ที่ถูกต้อง) ---
+            console.log("--- [API POST Menu] Received multipart/form-data ---");
+            const formData = await request.formData();
+            name = formData.get('name');
+            description = formData.get('description');
+            price = formData.get('price');
+            category = formData.get('category');
+            is_available = formData.get('is_available') === 'true';
+            imageFile = formData.get('image'); // นี่คือ File object
+
+        } else if (contentType.includes('application/json')) {
+            // --- Path 2: Postman ส่ง JSON มา ---
+            console.log("--- [API POST Menu] Received application/json ---");
+            const data = await request.json();
+            name = data.name;
+            description = data.description;
+            price = data.price;
+            category = data.category;
+            is_available = data.is_available;
+            imageBase64 = data.imageBase64; // นี่คือ String (หรือ null)
+
+        } else {
+            return NextResponse.json({ message: 'Unsupported Content-Type. Use JSON or FormData.' }, { status: 415 });
+        }
+        // --- [END HYBRID LOGIC] ---
+
+
+        // --- 2. Validation (เหมือนเดิม) ---
         if (!name || !price || !category) {
             return NextResponse.json({ message: 'Missing required fields.' }, { status: 400 });
         }
 
+        // --- 3. Get Restaurant ID (เหมือนเดิม) ---
         connection = await pool.getConnection();
         const [restaurantRows] = await connection.execute(
             'SELECT Restaurant_Id FROM Restaurant WHERE owner_user_id = ?',
@@ -159,28 +134,41 @@ export async function POST(request) {
             connection.release();
             return NextResponse.json({ message: 'Restaurant not found.' }, { status: 404 });
         }
-
         const restaurantId = restaurantRows[0].Restaurant_Id;
 
-        // --- จัดการรูปภาพ base64 ---
+
+        // --- 4. [HYBRID IMAGE LOGIC] (จัดการรูปภาพ) ---
         let imageUrl = null;
-        if (imageBase64) {
+        
+        // Priority 1: ถ้ามีไฟล์จาก FormData
+        if (imageFile && imageFile.name) {
+            console.log("--- [API POST Menu] Processing File Upload ---");
+            const filename = `menu-${Date.now()}-${Math.round(Math.random() * 1E9)}${path.extname(imageFile.name)}`;
+            const uploadDir = path.join(process.cwd(), 'public/uploads/menus');
+            await mkdir(uploadDir, { recursive: true });
+            const filePath = path.join(uploadDir, filename);
+            const buffer = Buffer.from(await imageFile.arrayBuffer());
+            await writeFile(filePath, buffer);
+            imageUrl = `/uploads/menus/${filename}`;
+        
+        // Priority 2: ถ้ามี Base64 จาก JSON
+        } else if (imageBase64) { 
+            console.log("--- [API POST Menu] Processing Base64 Upload ---");
             const matches = imageBase64.match(/^data:(image\/\w+);base64,(.+)$/);
             if (matches) {
-                const ext = matches[1].split('/')[1]; // เช่น png, jpg
+                const ext = matches[1].split('/')[1]; // e.g., png, jpg
                 const buffer = Buffer.from(matches[2], 'base64');
-
                 const filename = `menu-${Date.now()}.${ext}`;
                 const uploadDir = path.join(process.cwd(), 'public/uploads/menus');
                 await mkdir(uploadDir, { recursive: true });
                 const filePath = path.join(uploadDir, filename);
-
                 await writeFile(filePath, buffer);
                 imageUrl = `/uploads/menus/${filename}`;
             }
         }
+        // --- [END HYBRID IMAGE LOGIC] ---
 
-        // --- บันทึกเมนูลง DB ---
+        // --- 5. บันทึกเมนูลง DB (เหมือนเดิม) ---
         const [insertResult] = await connection.execute(
             `INSERT INTO Menu (Restaurant_Id, name, description, price, image_url, is_available, category, created_at) 
              VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
@@ -197,87 +185,74 @@ export async function POST(request) {
     } catch (err) {
         if (connection) connection.release();
         console.error('POST /api/manage/menus error:', err);
-        return NextResponse.json({ message: 'Internal server error.' }, { status: 500 });
-    }
-}
-
-
-
-export async function PUT(request,context) {
-    const params = await context.params;
-    const menuId = params.menuId;
-    const authCheck = await verifyShopOwner(request);
-    if (!authCheck.isShopOwner) {
-        return NextResponse.json({ message: authCheck.error }, { status: authCheck.status });
-    }
-
-    const ownerUserId = authCheck.shopUser.id;
-
-    let connection;
-    try {
-        const data = await request.json(); // <-- เปลี่ยนจาก formData() เป็น json
-        const { name, description, price, category, is_available, imageBase64 } = data;
-
-        if (!name || !price || !category) {
-            return NextResponse.json({ message: 'Missing required fields.' }, { status: 400 });
-        }
-
-        connection = await pool.getConnection();
-        // ตรวจสอบ Restaurant_Id ของเจ้าของร้าน
-        const [restaurantRows] = await connection.execute(
-            'SELECT Restaurant_Id FROM Restaurant WHERE owner_user_id = ?',
-            [ownerUserId]
-        );
-        if (restaurantRows.length === 0) {
-            connection.release();
-            return NextResponse.json({ message: 'Restaurant not found.' }, { status: 404 });
-        }
-        const restaurantId = restaurantRows[0].Restaurant_Id;
-
-        // ดึงข้อมูลเมนูเดิม
-        const [menuRows] = await connection.execute(
-            'SELECT * FROM Menu WHERE Menu_Id = ? AND Restaurant_Id = ?',
-            [menuId, restaurantId]
-        );
-        if (menuRows.length === 0) {
-            connection.release();
-            return NextResponse.json({ message: 'Menu not found.' , status: 404});
-        }
-
-        let imageUrl = menuRows[0].image_url; // ใช้รูปเดิม
-        // ถ้ามี imageBase64 ใหม่ → decode และบันทึก
-        if (imageBase64) {
-            const matches = imageBase64.match(/^data:(image\/\w+);base64,(.+)$/);
-            if (matches) {
-                const ext = matches[1].split('/')[1];
-                const buffer = Buffer.from(matches[2], 'base64');
-                const filename = `menu-${Date.now()}.${ext}`;
-                const uploadDir = path.join(process.cwd(), 'public/uploads/menus');
-                await mkdir(uploadDir, { recursive: true });
-                const filePath = path.join(uploadDir, filename);
-                await writeFile(filePath, buffer);
-                imageUrl = `/uploads/menus/${filename}`;
-            }
-        }
-
-        // Update menu
-        await connection.execute(
-            `UPDATE Menu 
-             SET name = ?, description = ?, price = ?, category = ?, is_available = ?, image_url = ?
-             WHERE Menu_Id = ? AND Restaurant_Id = ?`,
-            [name, description, price, category, is_available, imageUrl, menuId, restaurantId]
-        );
-
-        connection.release();
-        return NextResponse.json({
-            message: 'Menu updated successfully.',
-            menuId,
-            imageUrl
-        }, { status: 200 });
-
-    } catch (err) {
-        if (connection) connection.release();
-        console.error('[API PUT /menus/:id] error:', err);
         return NextResponse.json({ message: 'Internal server error.', error: err.message }, { status: 500 });
     }
 }
+
+
+// ‼️‼️‼️ ลบฟังก์ชัน PUT ที่หลงเหลืออยู่ออกจากไฟล์นี้ ‼️‼️‼️
+// (ฟังก์ชัน PUT อยู่ในไฟล์ [menuId]/route.js ซึ่งถูกต้องแล้ว)
+
+
+// ‼️ (ฟังก์ชัน PUT เดิมที่อยู่ในไฟล์นี้ ถูกย้ายไปที่ [menuId]/route.js แล้ว) ‼️
+
+// // Testing Shop Login
+// // method: POST
+// // URL: http://localhost:3001/api/auth/shop-login
+// // body: raw JSON
+// // {
+// //   "username": "test_shop_1",
+// //   "password": "password123"
+// // }
+//
+
+
+// // Testing Get All Menus (Shop Owner)
+// // method: GET
+// // URL: http://localhost:3001/api/manage/menus
+// // (ต้อง Login เป็น Shop ก่อน)
+//
+
+
+// // Testing Get  Menus (id) (Shop Owner)
+// // method: GET
+// // URL: http://localhost:3001/api/manage/menus/1
+// // (ต้อง Login เป็น Shop ก่อน)
+//
+
+
+// // Testing Insert a new Menu (Shop Owner)
+// // method: POST
+// // URL: http://localhost:3001/api/manage/menus
+// // Body Type: JSON
+// //
+// //  "name": "chicken fire (from JSON)",
+// //  "description": "Chicken fire",
+// //  "price": 35,
+// //  "category": "Main course",
+// //  "is_available": true
+// //  "imageBase64": null
+//
+
+// // Testing Update Menu (Shop Owner)
+// // method: PUT
+// // URL: http://localhost:3001/api/manage/menus/1
+// // Body Type: form-data (ไม่ใช่ JSON)
+// //
+// //  "name": "pork fire (from JSON)",
+// //  "description": "pork fire",
+// //  "price": 85,
+// //  "category": "Main course",
+// //  "is_available": true
+// //  "imageBase64": null
+//
+
+
+
+
+// // Testing Delete  Menu (Shop Owner)
+// // method: DELETE
+// // URL: http://localhost:3001/api/manage/menus/1
+
+
+

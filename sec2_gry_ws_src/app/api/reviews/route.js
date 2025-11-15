@@ -67,8 +67,8 @@ export async function POST(request) {
             // (ไม่จำเป็นต้องเช็ครีวิวซ้ำ เพราะ API GET ตอนนี้กรองให้แล้ว)
             // ⭐️ 4. INSERT โดยมี Menu_Id แล้ว ⭐️
             await connection.execute(
-                'INSERT INTO Review (OrderCart_Id, User_Id, Restaurant_Id, Menu_Id, rating, comment, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
-                [orderCartId, customerUserId, restaurantId, menuId, numericRating, comment || null]
+                'INSERT INTO Review (User_Id, Restaurant_Id, Menu_Id, rating, comment, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
+                [customerUserId, restaurantId, menuId, numericRating, comment || null]
             );
         }
 
