@@ -17,7 +17,7 @@ CREATE TABLE users (
 );
 
 
-
+-- สำหรับเข้านั้นคือ password123
 
 -- ตัวอย่างที่ 1: เพิ่มผู้ใช้ที่เป็น Customer
 INSERT INTO users (username, email, phone, password, role, created_at) 
@@ -26,7 +26,7 @@ VALUES
   'test_customer_1', 
   'customer1@example.com', 
   '0810001111', 
-  'password123', 
+  '$2b$10$mEPcAtsSYaYiwuwC6Jcone2bFPhQaO3lfmv1YK93U0S.NmmGOeIFG', 
   'customer', 
   NOW()
 );
@@ -38,7 +38,7 @@ VALUES
   'test_shop_1', 
   'shop1@example.com', 
   '0820002222', 
-  'password123', 
+  '$2b$10$mEPcAtsSYaYiwuwC6Jcone2bFPhQaO3lfmv1YK93U0S.NmmGOeIFG', 
   'shop', 
   NOW()
 );
@@ -50,7 +50,7 @@ VALUES
   'test_shop_2', 
   'shop2@example.com', 
   '0820003333', 
-  'password123', 
+  '$2b$10$mEPcAtsSYaYiwuwC6Jcone2bFPhQaO3lfmv1YK93U0S.NmmGOeIFG', 
   'shop', 
   NOW()
 );
@@ -63,7 +63,7 @@ VALUES
   'test_admin_1', 
   'admin1@example.com', 
   '0820004444', 
-  'password123', 
+  '$2b$10$mEPcAtsSYaYiwuwC6Jcone2bFPhQaO3lfmv1YK93U0S.NmmGOeIFG', 
   'admin', 
   NOW()
 );
