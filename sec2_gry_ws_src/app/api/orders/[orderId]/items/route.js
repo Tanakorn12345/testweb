@@ -21,9 +21,8 @@ async function verifyCustomer(request) {
 }
 
 
-export async function GET(request, context) {
-    const { params } = await context;       // 👈 2. Await context
-    const { orderId } = params;             // 👈 3. ตอนนี้ orderId ปลอดภัยแล้ว
+export async function GET(request, { params }) {
+    const { orderId } = await params;           // 👈 3. ตอนนี้ orderId ปลอดภัยแล้ว
 
     // --- 1. ตรวจสอบสิทธิ์ ---
     const authCheck = await verifyCustomer(request);
@@ -61,12 +60,22 @@ export async function GET(request, context) {
         
         connection.release();
 
+
+        if (items.length === 0) {
+            return NextResponse.json({ items: [] });
+        }
+        
+        // ⭐️ [FIX 2] สร้าง array ของ Menu_Id จาก items ที่ดึงมา
+        const menuIds = items.map(item => item.Menu_Id);
+
+
         // --- 4. ตรวจสอบว่ามีรีวิวสำหรับรายการเหล่านี้หรือยัง ---
         // (ขั้นตอนนี้สำคัญมาก เพื่อไม่ให้ลูกค้ารีวิวซ้ำ)
         const reviewsConnection = await pool.getConnection();
+
         const [existingReviews] = await reviewsConnection.execute(
-            'SELECT Menu_Id FROM Review WHERE OrderCart_Id = ?',
-            [orderId]
+            'SELECT Menu_Id FROM Review WHERE User_Id = ? AND Menu_Id IN (?)',
+            [customerUserId, menuIds] // 
         );
         reviewsConnection.release();
         

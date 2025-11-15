@@ -2,13 +2,18 @@
 import React, { useState, useEffect } from "react"; // 👈 1. เพิ่ม useEffect
 import Link from "next/link";
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated, user, logout, loading } = useAuth();
-  
+
+  const { cartItems } = useCart();
+
   // 👇 2. สร้าง state และฟังก์ชันสำหรับคำทักทายตามช่วงเวลา
   const [greeting, setGreeting] = useState('');
+
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
     const getGreeting = () => {
@@ -34,11 +39,20 @@ function Navbar() {
 
       {/* ส่วนขวา: รวมเมนูหลักและโปรไฟล์ไว้ด้วยกัน */}
       <div className="flex items-center gap-4">
-        
+
         {/* เมนู (desktop) */}
         <ul className="hidden sm:flex flex-row space-x-4 p-2 text-black font-bold">
           <li><Link href="/">HOME</Link></li>
-          <li><Link href="/order">ORDER</Link></li>
+          <li>
+            <Link href="/order" className="relative flex items-center">
+              ORDER
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                  {totalItems}
+                </span>
+              )}
+            </Link>
+          </li>
           <li><Link href="/aboutus">ABOUT</Link></li>
           <li><Link href="/search">SEARCH</Link></li>
           <li><Link href="#">INBOX</Link></li>
@@ -100,7 +114,14 @@ function Navbar() {
       {isOpen && (
         <ul className="absolute top-full left-0 w-full bg-white flex flex-col items-center space-y-4 py-4 sm:hidden shadow-md">
           <li><Link href="/">HOME</Link></li>
-          <li><Link href="/order">ORDER</Link></li>
+          <li><Link href="/order">ORDER
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                {totalItems}
+              </span>
+            )}
+
+          </Link></li>
           <li><Link href="#">ABOUT</Link></li>
           <li><Link href="/search">SEARCH</Link></li>
           <li><Link href="#">INBOX</Link></li>
