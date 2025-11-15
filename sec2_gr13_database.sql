@@ -17,7 +17,7 @@ CREATE TABLE users (
 );
 
 
--- สำหรับเข้านั้นคือ password123
+-- สำหรับรหัสผ่านเข้านั้นคือ password123
 
 -- ตัวอย่างที่ 1: เพิ่มผู้ใช้ที่เป็น Customer
 INSERT INTO users (username, email, phone, password, role, created_at) 
