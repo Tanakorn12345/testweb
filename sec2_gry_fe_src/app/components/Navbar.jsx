@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react"; // 👈 1. เพิ่ม u
 import Link from "next/link";
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { GiFoodTruck } from "react-icons/gi";
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,7 +34,11 @@ function Navbar() {
   return (
     <nav className="bg-white p-2 flex flex-row justify-between items-center relative z-50 shadow-sm">
       {/* โลโก้ (ด้านซ้าย) */}
-      <Link href="/" className="p-2 text-black font-bold text-base sm:text-xl">
+      <Link
+        href="/"
+        className="p-2 text-black font-bold text-base sm:text-xl flex items-center gap-2"
+      >
+        <GiFoodTruck className="text-green-500  size-8" /> {/* ไอคอน */}
         LINE GIRL
       </Link>
 
@@ -55,7 +60,7 @@ function Navbar() {
           </li>
           <li><Link href="/aboutus">ABOUT</Link></li>
           <li><Link href="/search">SEARCH</Link></li>
-          <li><Link href="#">INBOX</Link></li>
+         
         </ul>
 
         {/* ส่วนของโปรไฟล์และปุ่ม Login/Logout */}

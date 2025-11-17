@@ -41,21 +41,52 @@ export default function AboutUs() {
 
     return (
         <div>
+    
+            
+            <style>
+                {`
+                    .team-header {
+                        text-align: center;
+                        padding: 4.5rem 0;
+                    }
+    
+                    .team-header h1 {
+                        font-size: 3.75rem;
+                        font-weight: bold;
+                        font-family: sans-serif;
+                    }
+    
+                    .member-card {
+                        background: rgba(209, 250, 229, 0.5);
+                        border: 2px solid rgb(110, 231, 183);
+                        padding: 1.5rem;
+                        border-radius: 1.5rem;
+                        text-align: center;
+                        max-width: 16rem;
+                        transition: 0.3s;
+                    }
+    
+                    .member-card:hover {
+                        transform: scale(1.05);
+                        box-shadow: 0 10px 25px rgba(52, 211, 153, 0.4);
+                    }
+                `}
+            </style>
+    
             <Navbar />
-
-            <header className="text-center py-18">
-                <h1 className="text-6xl font-bold font-sans">LINEGIRL TEAM</h1>
+    
+            <header className="team-header">
+                <h1>LINEGIRL TEAM</h1>
             </header>
-
+    
             <section className="max-w-6xl mx-auto px-4 pt-10">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 place-items-center">
-
+    
                     {teamMembers.map((member, index) => (
                         <article
                             key={index}
-                            className="bg-emerald-100/50 border-2 border-emerald-300 p-6 rounded-3xl text-center max-w-xs transition duration-300 hover:scale-105 hover:shadow-xl hover:shadow-emerald-400/40"
+                            className="member-card"
                         >
-
                             <div className="w-48 h-48 overflow-hidden rounded-xl border border-emerald-500 mx-auto">
                                 <img
                                     src={member.imgPlaceholderUrl}
@@ -63,13 +94,13 @@ export default function AboutUs() {
                                     className="w-full h-full object-cover"
                                 />
                             </div>
-
+    
                             <div className="mt-4 space-y-1 text-[17px]">
                                 <p>ชื่อ: {member.firstName}</p>
                                 <p>นามสกุล: {member.surname}</p>
                                 <p>{member.roleDescription}</p>
                             </div>
-
+    
                             <a
                                 href={member.instagramUrl}
                                 target="_blank"
@@ -80,9 +111,10 @@ export default function AboutUs() {
                             </a>
                         </article>
                     ))}
-
+    
                 </div>
             </section>
         </div>
     );
+    
 }

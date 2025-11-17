@@ -6,7 +6,7 @@ import Footer from "../components/Footer";
 import Card from "../components/Card";
 import { Loader2 } from "lucide-react"; 
 
-// 🎯 [ใหม่] ฟังก์ชันคำนวณระยะทาง (Haversine formula)
+//  ฟังก์ชันคำนวณระยะทาง (Haversine formula)
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
   if (!lat1 || !lon1 || !lat2 || !lon2) {
     return Infinity; // ถ้าไม่มีพิกัด ให้ถือว่าไกลมาก
@@ -46,7 +46,7 @@ function Page() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // 🎯 [ใหม่] State สำหรับเก็บตำแหน่งผู้ใช้
+  //  State สำหรับเก็บตำแหน่งผู้ใช้
   const [userLocation, setUserLocation] = useState(null); // { lat: ..., lng: ... }
   const [locationError, setLocationError] = useState(null);
 
@@ -75,7 +75,7 @@ function Page() {
   }, []); // [] = ทำงานครั้งเดียว
 
 
-  // 🎯 [ใหม่] useEffect (ขอตำแหน่งผู้ใช้)
+  // useEffect (ขอตำแหน่งผู้ใช้)
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -123,7 +123,7 @@ function Page() {
     if (filterType === "rating") setSelectedRating(null);
   };
 
-  // --- 🎯 [แก้ไข] Logic การกรอง (filteredRestaurants) (รวมโค้ด 2 ส่วน) ---
+  // --- Logic การกรอง (filteredRestaurants) (รวมโค้ด 2 ส่วน) ---
   const filteredRestaurants = useMemo(() => {
     // 1. ถ้ากำลังโหลดร้านค้า ให้ trả về mảng rỗng
     if (loading) {
@@ -184,27 +184,30 @@ function Page() {
   return (
     <div>
       <Navbar />
-
-      {/* --- ส่วนของฟอร์มค้นหาและฟิลเตอร์ (เหมือนเดิม) --- */}
+  
       <form
         onSubmit={(e) => e.preventDefault()}
         ref={wrapperRef}
-        className="w-full max-w-[90%] mx-auto mb-5 mt-10 md:max-w-lg md:ml-20 relative"
+        className="w-full max-w-[90%] mx-auto mb-40 mt-10 md:max-w-lg md:ml-20 relative"
       >
-         {/* Tag Filters */}
-         {activeFilters.length > 0 && (
+        {/* Tag Filters */}
+        {activeFilters.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-2">
             {activeFilters.map((f, index) => (
               <span key={index} className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs md:text-sm">
                 {f.value}
-                <button type="button" onClick={() => removeFilter(f.type)} className="text-red-500 hover:text-red-700">
+                <button
+                  type="button"
+                  onClick={() => removeFilter(f.type)}
+                  className="text-red-500 hover:text-red-700"
+                >
                   ×
                 </button>
               </span>
             ))}
           </div>
         )}
-
+  
         {/* Search Input */}
         <div className="relative">
           <input
@@ -223,79 +226,101 @@ function Page() {
             Search
           </button>
         </div>
-
-        {/* 🎯 [เพิ่ม] แสดงสถานะการรอตำแหน่ง */}
+  
+        {/* Status Text */}
         {selectedDistance && !userLocation && !locationError && (
-            <div className="mt-2 text-sm text-blue-600">
-                <Loader2 className="w-4 h-4 inline animate-spin mr-1" />
-                Getting your location for distance filter...
-            </div>
+          <div className="mt-2 text-sm text-blue-600">
+            <Loader2 className="w-4 h-4 inline animate-spin mr-1" />
+            Getting your location for distance filter...
+          </div>
         )}
         {locationError && (
-            <div className="mt-2 text-sm text-red-600">
-                {locationError}
-            </div>
+          <div className="mt-2 text-sm text-red-600">
+            {locationError}
+          </div>
         )}
-
-
-        {/* Dropdown filter */}
+  
+        {/* Dropdown Filter */}
         {showDropdown && (
           <div className="absolute z-40 w-full bg-white border border-gray-200 rounded-lg shadow-md mt-2 p-4 space-y-4 max-h-64 overflow-y-auto md:max-h-none">
+            
             {/* Distance */}
             <div>
               <p className="font-semibold mb-2 text-sm md:text-base">📍 Distance</p>
               <div className="flex flex-wrap gap-2">
                 {distances.map((d) => (
-                  <button key={d} type="button" onClick={() => setSelectedDistance(selectedDistance === d ? null : d)} className={`px-2 py-1 md:px-3 md:py-1 rounded-lg border text-xs md:text-sm ${selectedDistance === d ? "bg-green-400 text-white" : "bg-gray-100"}`}>
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => setSelectedDistance(selectedDistance === d ? null : d)}
+                    className={`px-2 py-1 md:px-3 md:py-1 rounded-lg border text-xs md:text-sm ${
+                      selectedDistance === d ? "bg-green-400 text-white" : "bg-gray-100"
+                    }`}
+                  >
                     {d}
                   </button>
                 ))}
               </div>
             </div>
-
+  
             {/* Type */}
             <div>
               <p className="font-semibold mb-2 text-sm md:text-base">🍴 Type</p>
               <div className="flex flex-wrap gap-2">
                 {types.map((t) => (
-                  <button key={t} type="button" onClick={() => setSelectedType(selectedType === t ? null : t)} className={`px-2 py-1 md:px-3 md:py-1 rounded-lg border text-xs md:text-sm ${selectedType === t ? "bg-green-400 text-white" : "bg-gray-100"}`}>
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => setSelectedType(selectedType === t ? null : t)}
+                    className={`px-2 py-1 md:px-3 md:py-1 rounded-lg border text-xs md:text-sm ${
+                      selectedType === t ? "bg-green-400 text-white" : "bg-gray-100"
+                    }`}
+                  >
                     {t}
                   </button>
                 ))}
               </div>
             </div>
-
+  
             {/* Rating */}
             <div>
               <p className="font-semibold mb-2 text-sm md:text-base">⭐ Rating</p>
               <div className="flex flex-wrap gap-2">
                 {ratings.map((r) => (
-                  <button key={r} type="button" onClick={() => setSelectedRating(selectedRating === r ? null : r)} className={`px-2 py-1 md:px-3 md:py-1 rounded-lg border text-xs md:text-sm ${selectedRating === r ? "bg-green-400 text-white" : "bg-gray-100"}`}>
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setSelectedRating(selectedRating === r ? null : r)}
+                    className={`px-2 py-1 md:px-3 md:py-1 rounded-lg border text-xs md:text-sm ${
+                      selectedRating === r ? "bg-green-400 text-white" : "bg-gray-100"
+                    }`}
+                  >
                     {r}
                   </button>
                 ))}
               </div>
             </div>
+  
           </div>
         )}
       </form>
-
-      {/* --- ส่วนแสดงผล --- */}
-      <div className="w-full max-w-[90%] mx-auto mb-10 md:max-w-7xl"> 
-        
-        {/* --- 5. เพิ่ม UI สำหรับ Loading / Error --- */}
+  
+      {/* Results Section */}
+      <div className="w-full max-w-[90%] mx-auto mb-11 mt-10 md:max-w-7xl">
+  
         {loading && (
-           <div className="text-center py-20">
-             <Loader2 className="w-10 h-10 mx-auto text-green-500 animate-spin" />
-             <p className="mt-4 text-gray-500">Loading restaurants...</p>
-           </div>
+          <div className="text-center py-20">
+            <Loader2 className="w-10 h-10 mx-auto text-green-500 animate-spin" />
+            <p className="mt-4 text-gray-500">Loading restaurants...</p>
+          </div>
         )}
+  
         {error && (
-           <div className="text-center py-20">
-             <p className="text-xl text-red-500">😢 Error: {error}</p>
-           </div>
+          <div className="text-center py-20">
+            <p className="text-xl text-red-500">😢 Error: {error}</p>
+          </div>
         )}
-        
+  
         {!loading && !error && (
           <>
             {filteredRestaurants.length > 0 ? (
@@ -306,21 +331,21 @@ function Page() {
               </div>
             ) : (
               <div className="text-center py-20">
-                {/*  [เพิ่ม] แสดงข้อความให้ถูกต้อ */}
                 {(selectedDistance && !userLocation && !locationError) ? (
-                    <p className="text-xl text-gray-500">Finding restaurants near you...</p>
+                  <p className="text-xl text-gray-500">Finding restaurants near you...</p>
                 ) : (
-                    <p className="text-xl text-gray-500">😢 No restaurants found that match the criteria.</p>
+                  <p className="text-xl text-gray-500">😢 No restaurants found that match the criteria.</p>
                 )}
               </div>
             )}
           </>
         )}
       </div>
-      
+  
       <Footer />
     </div>
   );
+  
 }
 
 export default Page;

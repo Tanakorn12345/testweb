@@ -6,6 +6,69 @@ import { writeFile } from 'fs/promises'; // <-- สำหรับบันท�
 import path from 'path';                // <-- สำหรับบันทึกรูป
 import { mkdir } from 'fs/promises';   // <-- สำหรับบันทึกรูป
 
+
+
+// // Testing Shop Login
+// // method: POST
+// // URL: http://localhost:3001/api/auth/shop-login
+// // body: raw JSON
+// // {
+// //   "username": "test_shop_1",
+// //   "password": "password123"
+// // }
+//
+
+
+// // Testing Get All Menus (Shop Owner)
+// // method: GET
+// // URL: http://localhost:3001/api/manage/menus
+// // (ต้อง Login เป็น Shop ก่อน)
+//
+
+
+// // Testing Get  Menus (id) (Shop Owner)
+// // method: GET
+// // URL: http://localhost:3001/api/manage/menus/1
+// // (ต้อง Login เป็น Shop ก่อน)
+//
+
+
+// // Testing Insert a new Menu (Shop Owner)
+// // method: POST
+// // URL: http://localhost:3001/api/manage/menus
+// // Body Type: JSON
+// //
+// //  "name": "chicken fire (from JSON)",
+// //  "description": "Chicken fire",
+// //  "price": 35,
+// //  "category": "Main course",
+// //  "is_available": true
+// //  "imageBase64": null
+//
+
+// // Testing Update Menu (Shop Owner)
+// // method: PUT
+// // URL: http://localhost:3001/api/manage/menus/1
+// // Body Type: form-data (ไม่ใช่ JSON)
+// //
+// //  "name": "pork fire (from JSON)",
+// //  "description": "pork fire",
+// //  "price": 85,
+// //  "category": "Main course",
+// //  "is_available": true
+// //  "imageBase64": null
+//
+
+
+
+
+// // Testing Delete  Menu (Shop Owner)
+// // method: DELETE
+// // URL: http://localhost:3001/api/manage/menus/1
+
+
+
+
 // --- ใช้ฟังก์ชัน verifyShopOwner เดิม ---
 async function verifyShopOwner(request) {
     const cookieStore = await cookies();
@@ -190,69 +253,7 @@ export async function POST(request) {
 }
 
 
-// ‼️‼️‼️ ลบฟังก์ชัน PUT ที่หลงเหลืออยู่ออกจากไฟล์นี้ ‼️‼️‼️
-// (ฟังก์ชัน PUT อยู่ในไฟล์ [menuId]/route.js ซึ่งถูกต้องแล้ว)
 
-
-// ‼️ (ฟังก์ชัน PUT เดิมที่อยู่ในไฟล์นี้ ถูกย้ายไปที่ [menuId]/route.js แล้ว) ‼️
-
-// // Testing Shop Login
-// // method: POST
-// // URL: http://localhost:3001/api/auth/shop-login
-// // body: raw JSON
-// // {
-// //   "username": "test_shop_1",
-// //   "password": "password123"
-// // }
-//
-
-
-// // Testing Get All Menus (Shop Owner)
-// // method: GET
-// // URL: http://localhost:3001/api/manage/menus
-// // (ต้อง Login เป็น Shop ก่อน)
-//
-
-
-// // Testing Get  Menus (id) (Shop Owner)
-// // method: GET
-// // URL: http://localhost:3001/api/manage/menus/1
-// // (ต้อง Login เป็น Shop ก่อน)
-//
-
-
-// // Testing Insert a new Menu (Shop Owner)
-// // method: POST
-// // URL: http://localhost:3001/api/manage/menus
-// // Body Type: JSON
-// //
-// //  "name": "chicken fire (from JSON)",
-// //  "description": "Chicken fire",
-// //  "price": 35,
-// //  "category": "Main course",
-// //  "is_available": true
-// //  "imageBase64": null
-//
-
-// // Testing Update Menu (Shop Owner)
-// // method: PUT
-// // URL: http://localhost:3001/api/manage/menus/1
-// // Body Type: form-data (ไม่ใช่ JSON)
-// //
-// //  "name": "pork fire (from JSON)",
-// //  "description": "pork fire",
-// //  "price": 85,
-// //  "category": "Main course",
-// //  "is_available": true
-// //  "imageBase64": null
-//
-
-
-
-
-// // Testing Delete  Menu (Shop Owner)
-// // method: DELETE
-// // URL: http://localhost:3001/api/manage/menus/1
 
 
 
