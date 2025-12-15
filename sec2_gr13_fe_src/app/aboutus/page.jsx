@@ -11,7 +11,7 @@ export default function AboutUs() {
             roleDescription: "ตำแหน่ง: ผู้ดูแลระบบ",
             instagramHandle: "bbank_16",
             instagramUrl: "https://www.instagram.com/bbank_16?igsh=MTJiZmFvdW9iZjZxZQ==",
-            imgPlaceholderUrl: "https://img.freepik.com/free-photo/3d-cartoon-character_23-2151021986.jpg?semt=ais_hybrid&w=740&q=80",
+            imgPlaceholderUrl: "/team/Screenshot 2568-12-15 at 13.33.16.png",
         },
         {
             surname: "จิรานันทวงศ์",
@@ -19,7 +19,7 @@ export default function AboutUs() {
             roleDescription: "ตำแหน่ง: UX/UI",
             instagramHandle: "_aapptk_",
             instagramUrl: "https://www.instagram.com/_aapptk_?igsh=YWp4MjFrNzc5Z3U2",
-            imgPlaceholderUrl: "https://img.freepik.com/free-photo/cute-ai-generated-cartoon-bunny_23-2150288872.jpg?semt=ais_hybrid&w=740&q=80",
+            imgPlaceholderUrl: "/team/Screenshot 2568-12-15 at 13.27.36.png",
         },
         {
             surname: "บุรีมาต",
@@ -27,7 +27,7 @@ export default function AboutUs() {
             roleDescription: "ตำแหน่ง: นักพัฒนา",
             instagramHandle: "drrrrx__",
             instagramUrl: "https://www.instagram.com/drrrrx__?igsh=Y2NwZHQwOTQ1YjRp",
-            imgPlaceholderUrl: "https://img.freepik.com/free-photo/adorable-mushroom-illustration_23-2151700697.jpg?semt=ais_hybrid&w=740&q=80",
+            imgPlaceholderUrl: "/team/Screenshot 2568-12-15 at 13.31.56.png",
         },
         {
             surname: "แก้วชิงดวง",
@@ -35,7 +35,7 @@ export default function AboutUs() {
             roleDescription: "ตำแหน่ง: UX/UI",
             instagramHandle: "baeyemrn",
             instagramUrl: "https://www.instagram.com/baeyemrn?igsh=MTU5dHpueXdwaWdkcQ==",
-            imgPlaceholderUrl: "https://easydrawingguides.com/wp-content/uploads/2024/06/how-to-draw-an-easy-spider-man-featured-image-1200.png",
+            imgPlaceholderUrl: "/team/Screenshot 2568-12-15 at 13.30.22.png",
         },
     ];
 

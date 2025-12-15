@@ -137,7 +137,7 @@ export async function GET(request) {
                 longitude,  -- 👈 เพิ่ม
                 rating      -- 👈 เพิ่ม (สำหรับฟิลเตอร์ดาว)
             FROM Restaurant
-            WHERE is_open = true`
+            `
         );
         connection.release();
 

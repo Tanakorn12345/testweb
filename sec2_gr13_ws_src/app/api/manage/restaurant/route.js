@@ -90,19 +90,25 @@ export async function PATCH(request) {
 
     try {
         const body = await request.json();
-        // รับค่า opening_hours (เช่น "10:00 - 22:00") และ is_open (true/false)
         const { opening_hours, is_open } = body;
+
+        // 🟢 FIX: แปลง undefined ให้เป็น null ก่อนส่งเข้า SQL
+        // ถ้า opening_hours ไม่ถูกส่งมา (เป็น undefined) ให้ใช้ null
+        const safe_opening_hours = opening_hours === undefined ? null : opening_hours;
+        
+        // ถ้า is_open ไม่ถูกส่งมา (เป็น undefined) ให้ใช้ null
+        const safe_is_open = is_open === undefined ? null : is_open;
 
         const connection = await pool.getConnection();
 
         // 2. อัปเดตข้อมูลลง DB
-        // ใช้ COALESCE เพื่อให้: ถ้าไม่ส่งค่ามา ให้ใช้ค่าเดิมใน DB (ไม่ทับด้วย null)
+        // ส่งตัวแปรที่ safe_... เข้าไปใน array แทนตัวแปรเดิม
         await connection.execute(
             `UPDATE Restaurant 
              SET opening_hours = COALESCE(?, opening_hours), 
                  is_open = COALESCE(?, is_open) 
              WHERE owner_user_id = ?`,
-            [opening_hours, is_open, ownerUserId]
+            [safe_opening_hours, safe_is_open, ownerUserId] 
         );
 
         connection.release();
@@ -111,6 +117,6 @@ export async function PATCH(request) {
 
     } catch (error) {
         console.error("PATCH /api/manage/restaurant error:", error);
-        return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+        return NextResponse.json({ message: 'Internal server error', error: error.message }, { status: 500 });
     }
 }

@@ -17,11 +17,15 @@ import ReviewSection from '../../components/ReviewSection';
 
 // 🎯 2. [แก้ไข] Helper Function ให้ใช้เวลาประเทศไทย (GMT+7) เสมอ
 function getDynamicOpenStatus(dbIsOpen, hoursString) {
-  // 1. ถ้าเจ้าของร้าน "ปิดร้าน" เอง (is_open = false) ให้ปิดทันที
-  if (dbIsOpen === false) { 
+  // 🟢 แปลงค่าที่ได้จาก DB เป็น Boolean ก่อน (เพื่อรองรับทั้งเลข 0, 1 และ true, false)
+  const isSystemOpen = Boolean(dbIsOpen); 
+
+  // 1. ถ้าเจ้าของร้านกดปิด (isSystemOpen เป็น false) -> ให้ปิดทันที ไม่ต้องดูเวลา
+  if (!isSystemOpen) { 
       return { isOpen: false, text: "Closed" };
   }
-  // 2. ถ้าไม่มีข้อมูลเวลา หรือข้อมูลผิดพลาด
+
+  // 2. ถ้าไม่มีข้อมูลเวลา หรือข้อมูลผิดพลาด -> ถือว่าเปิด (เพราะเจ้าของร้านกดเปิดแล้ว)
   if (typeof hoursString !== 'string' || !hoursString.includes('-')) {
       return { isOpen: true, text: "Open" }; 
   }
@@ -30,28 +34,21 @@ function getDynamicOpenStatus(dbIsOpen, hoursString) {
       // 3. พยายามแยกส่วนเวลา (รองรับ "10:00" และ "10.00")
       const parts = hoursString.split('-').map(s => s.trim());
       
-      // 🎯 [แก้ไข] ใช้ Regex
-      //    split(/[:.]/) จะแยก "10:00" -> ["10", "00"]
-      //    และแยก "10.00" -> ["10", "00"]
       const [openHourStr, openMinStr] = parts[0].split(/[:.]/);
       const [closeHourStr, closeMinStr] = parts[1].split(/[:.]/);
 
       const openHour = parseInt(openHourStr, 10);
-      const openMin = parseInt(openMinStr, 10) || 0; // ถ้าไม่มีนาที ให้เป็น 0
+      const openMin = parseInt(openMinStr, 10) || 0; 
       const closeHour = parseInt(closeHourStr, 10);
       const closeMin = parseInt(closeMinStr, 10) || 0;
 
-      // 🎯 4. [สำคัญ] ดึงเวลาปัจจุบันใน Timezone "Asia/Bangkok"
+      // 4. ดึงเวลาปัจจุบันใน Timezone "Asia/Bangkok"
       const now = new Date();
-      
-      // ใช้ toLocaleString เพื่อดึง "ชั่วโมง" ในเขตเวลาไทย (แบบ 24-hour)
       const thaiHour = parseInt(now.toLocaleString('en-US', {
           timeZone: 'Asia/Bangkok',
           hour: '2-digit',
-          hour12: false // ใช้ 24-hour format
+          hour12: false
       }), 10);
-      
-      // ใช้ toLocaleString เพื่อดึง "นาที" ในเขตเวลาไทย
       const thaiMinute = parseInt(now.toLocaleString('en-US', {
           timeZone: 'Asia/Bangkok',
           minute: '2-digit'
@@ -62,22 +59,21 @@ function getDynamicOpenStatus(dbIsOpen, hoursString) {
       const openInMinutes = (openHour * 60) + openMin;
       const closeInMinutes = (closeHour * 60) + closeMin;
 
-      // 6. ตรวจสอบเวลา (Logic เดิม)
-      if (closeInMinutes < openInMinutes) { // กรณีปิดข้ามคืน (เช่น 22:00 - 02:00)
+      // 6. ตรวจสอบเวลา
+      if (closeInMinutes < openInMinutes) { // ปิดข้ามคืน
           if (nowInMinutes >= openInMinutes || nowInMinutes < closeInMinutes) {
               return { isOpen: true, text: `Open (until ${parts[1]})` };
           }
-      } else { // กรณีปกติ (เช่น 10:00 - 22:00)
+      } else { // ปิดในวันเดียว
           if (nowInMinutes >= openInMinutes && nowInMinutes < closeInMinutes) {
               return { isOpen: true, text: `Open (until ${parts[1]})` };
           }
       }
       
-      // 7. ถ้าไม่เข้าเงื่อนไข = ปิด
+      // 7. ถ้าไม่เข้าเงื่อนไขเวลา = ปิด
       return { isOpen: false, text: `Closed (Opens at ${parts[0]})` };
 
   } catch (e) {
-      // ถ้า parsing ล้มเหลว (เช่น "Open 24 hours")
       console.error("Error parsing opening hours:", e);
       return { isOpen: true, text: hoursString || "Open" }; 
   }
@@ -208,6 +204,9 @@ export default function ShopDetailPage() {
             title={activeTab} 
             items={activeMenuItems} 
             restaurant={{id: restaurant.id, name: restaurant.name}} 
+            //  เพิ่ม Prop นี้ส่งไปให้ MenuSection (ถ้า MenuSection รองรับ)
+            // เพื่อให้ปุ่ม Add to Cart เป็นสีเทา/กดไม่ได้
+            isStoreOpen={storeStatus ? storeStatus.isOpen : false}
         />
       ) : (
         <div className="text-center py-10 text-gray-500">

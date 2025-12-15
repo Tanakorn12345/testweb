@@ -21,8 +21,8 @@ function groupMenus(menuRows) {
 
 // --- API GET /api/shop/[slug] ---
 export async function GET(request, context) {
-    // ⚡ ต้อง await params ก่อน
-    const { params } = await context;
+    // 🟢 แก้ไขตรงนี้: ดึง params จาก context แล้วค่อย await
+    const params = await context.params; 
     const slug = params.slug;
 
     if (!slug) {
@@ -51,7 +51,7 @@ export async function GET(request, context) {
                 latitude,   
                 longitude  
              FROM Restaurant
-             WHERE slug = ? AND is_open = true`,
+             WHERE slug = ? `,
             [slug]
         );
 
