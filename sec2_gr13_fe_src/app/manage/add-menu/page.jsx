@@ -135,7 +135,7 @@ export default function AddMenuPage() {
 
                 <div className="flex items-center gap-3 mb-4">
                      <Utensils className="w-6 h-6 text-black" />
-                     <h1 className="text-xl font-bold text-black">Add New Menu Item</h1>
+                     <h1 className="text-xl font-bold  text-green-600">Add New Menu Item</h1>
                 </div>
                 <p className="text-gray-600 mb-6">Fill in the details for your new menu item.</p>
 

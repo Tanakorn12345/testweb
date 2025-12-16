@@ -1,85 +1,53 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
-import pool from '../../../../lib/db'; // 👈 1. Import connection pool ที่เราสร้างไว้
-
-
-// // Testing Register New Customer
-// // method: POST
-// // URL: http://localhost:3000/api/auth/register
-// // body: raw JSON
-// // {
-// //   "username": "new_customer_01",
-// //   "email": "customer1@test.com",
-// //   "phone": "0801234567",
-// //   "password": "password123",
-// //   "role": "customer"
-// // }
-//
-// // Testing Register New Shop
-// // method: POST
-// // URL: http://localhost:3000/api/auth/register
-// // body: raw JSON
-// // {
-// //   "username": "new_shop_01",
-// //   "email": "shop1@test.com",
-// //   "phone": "0809876543",
-// //   "password": "password123",
-// //   "role": "shop"
-// // }
-//
-
-
+import pool from '../../../../lib/db';
 
 export async function POST(request) {
-    let connection; // ประกาศ connection ไว้ข้างนอก try-finally
+    let connection;
     try {
-        const { username, email, phone, password, role } = await request.json();
+        const { username, password, email, role, phone, shopName } = await request.json(); // 🟢 รับ shopName เพิ่ม (ถ้ามี)
 
-        // (ส่วน Validation ข้อมูลเหมือนเดิม)
-        if (!username || !email || !phone || !password || !role) {
-            return NextResponse.json({ message: 'All fields are required.' }, { status: 400 });
+        // 1. Validation (ตรวจสอบค่าว่าง)
+        if (!username || !password || !email || !role) {
+            return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
         }
-        if (password.length < 6) {
-            return NextResponse.json({ message: 'Password must be at least 6 characters long.' }, { status: 400 });
-        }
-        const allowedRoles = ['customer', 'shop', 'admin'];
-        if (!allowedRoles.includes(role)) {
-            return NextResponse.json({ message: 'A valid role is required.' }, { status: 400 });
-        }
-        
-        // 👈 2. เชื่อมต่อกับฐานข้อมูล
+
         connection = await pool.getConnection();
+        await connection.beginTransaction(); // เริ่ม Transaction (ทำพร้อมกัน ถ้าพังให้ยกเลิกหมด)
 
-        // 👈 3. ตรวจสอบว่ามี email นี้ในระบบแล้วหรือยัง
-        const [existingUsers] = await connection.execute(
-            'SELECT * FROM users WHERE email = ?',
-            [email]
+        // 2. เช็คว่ามี User นี้หรือยัง
+        const [existingUser] = await connection.execute(
+            'SELECT id FROM Users WHERE username = ? OR email = ?',
+            [username, email]
         );
 
-        if (existingUsers.length > 0) {
-            return NextResponse.json({ message: 'User with this email already exists.' }, { status: 409 }); // 409 Conflict
+        if (existingUser.length > 0) {
+            await connection.release();
+            return NextResponse.json({ message: 'Username or Email already exists' }, { status: 409 });
         }
-        
-        // (ส่วน Hash รหัสผ่านเหมือนเดิม)
+
+        // 3. Hash Password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // 👈 4. บันทึกผู้ใช้ใหม่ลงในฐานข้อมูล
-        // **หมายเหตุ:** ชื่อตาราง (users) และชื่อคอลัมน์ (username, email, ...) ต้องตรงกับในฐานข้อมูลของคุณ
-        await connection.execute(
-            'INSERT INTO users (username, email, phone, password, role) VALUES (?, ?, ?, ?, ?)',
-            [username, email, phone, hashedPassword, role]
+        // 4. สร้าง User ใหม่
+        const [result] = await connection.execute(
+            'INSERT INTO users (username, password, email, role, phone) VALUES (?, ?, ?, ?, ?)',
+            [username, hashedPassword, email, role, phone || '']
         );
 
-        // (ส่วนส่ง Response กลับเหมือนเดิม)
-        return NextResponse.json({ message: 'User registered successfully.' }, { status: 201 });
+        const newUserId = result.insertId; // ได้ ID ของ User ที่เพิ่งสร้าง
+
+        
+       
+        await connection.commit(); // บันทึกข้อมูลทั้งหมด
+        connection.release();
+
+        return NextResponse.json({ message: 'User registered successfully' }, { status: 201 });
 
     } catch (error) {
-        console.error('Registration API error:', error);
-        return NextResponse.json({ message: 'An internal server error occurred.' }, { status: 500 });
-    } finally {
-        // 👈 5. คืน connection กลับสู่ pool ไม่ว่าจะสำเร็จหรือล้มเหลว
-        if (connection) {
-            connection.release();
-        }
+        if (connection) await connection.rollback(); // ถ้า Error ให้ย้อนกลับ ไม่บันทึกอะไรเลย
+        if (connection) connection.release();
+        console.error("Register Error:", error);
+        return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
     }
 }

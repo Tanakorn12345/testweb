@@ -5,6 +5,7 @@ import Link from "next/link"; // <-- Commented out due to build error
 import Navbar from "../../components/Navbar"; // <-- Commented out for Canvas
 import { MagnifyingGlassIcon, ArrowLeftIcon } from "@heroicons/react/24/solid"; 
 import { Loader2, Edit, Trash2, X } from "lucide-react"; // <-- เพิ่ม X สำหรับ Modal
+import { FaCartPlus } from "react-icons/fa";
 
 // --- 1. ย้าย ConfirmationModal มาไว้ที่นี่ ---
 function ConfirmationModal({ menu, onConfirm, onCancel, isDeleting }) { // <-- เปลี่ยน prop เป็น menu
@@ -144,7 +145,8 @@ export default function OverviewPage() {
       <main className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         {/* ... (Header, Search เหมือนเดิม) ... */}
          <div className="mb-4">
-          <h1 className="text-2xl font-semibold decoration-black/80 decoration-2 mb-1">Product Overview</h1>
+          <h1 className="flex  gap-2 text-2xl font-semibold decoration-black/80 decoration-2 mb-1">
+            <FaCartPlus size={26}/>Product Overview</h1>
           <p className="text-gray-700">Manage your menu items here.</p>
           {errorMenus && <p className="mt-2 text-sm text-red-600">Error loading menus: {errorMenus}</p>}
         </div>

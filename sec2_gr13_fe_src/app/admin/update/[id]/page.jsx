@@ -179,7 +179,7 @@ export default function UpdateUserPage({ params }) { // <-- ใช้ params pro
 
                 <div className="flex items-center gap-3 mb-4">
                      <User className="w-6 h-6 text-black" />
-                     <h1 className="text-xl font-bold text-black">Update User Account</h1>
+                     <h1 className="text-xl font-bold text-green-600">Update User Account</h1>
                 </div>
                 <p className="text-gray-600 mb-6">Edit details for user (ID: {userId}).</p>
 

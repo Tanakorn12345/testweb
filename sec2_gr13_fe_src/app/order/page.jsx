@@ -6,6 +6,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useCart } from '../context/CartContext'; // <-- ใช้จริงเลย
 import { Loader2 } from "lucide-react";
+import { FaCartPlus } from "react-icons/fa";
 
 export default function OrderPage() {
   const router = useRouter();
@@ -86,11 +87,14 @@ export default function OrderPage() {
     <div className="min-h-screen bg-white flex flex-col">
       <Navbar />
       <main className="flex-grow px-4 sm:px-6 py-6 max-w-2xl mx-auto flex flex-col gap-6 w-full">
+        <h1 className="flex text-xl font-bold text-green-700 gap-3">
+          <FaCartPlus size={26} className="text-black"/>MY CART</h1>
         {Object.entries(groupedByRestaurant).map(([restaurantName, items]) => (
           <div key={restaurantName} className="flex flex-col gap-4">
-            <h2 className="text-lg font-bold border-b pb-2">{restaurantName}</h2>
+            <h2 className="text-lg font-bold border-b pb-2">Restaurant : {restaurantName}</h2>
             {items.map(item => (
               <div key={item.id} className="bg-gray-100 rounded-xl p-4 flex justify-between items-center gap-4">
+                
                 <div className="flex items-start gap-3">
                   <div className="flex items-center gap-2">
                     <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 bg-gray-300 rounded">-</button>

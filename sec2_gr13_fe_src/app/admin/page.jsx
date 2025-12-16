@@ -2,8 +2,8 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Search, Trash2, Edit, Loader2, X } from "lucide-react"; 
 import Navbar from "../components/Navbar"; // <-- Commented out due to build error
-import Link from 'next/link'; // <-- Commented out due to build error
-
+import Link from 'next/link';
+import { FaAddressBook } from "react-icons/fa";
 // --- ConfirmationModal (เหมือนเดิม) ---
 function ConfirmationModal({ user, onConfirm, onCancel, isDeleting }) {
   if (!user) return null;
@@ -147,7 +147,8 @@ function AdminHome() {
 
 
       <main className="max-w-6xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-semibold decoration-black/80 decoration-2 mb-1">ADMIN</h1>
+        <h1 className="gap-2.5 flex text-2xl font-semibold decoration-black/80 decoration-2 mb-1">
+        <FaAddressBook  className="w-6 h-6"/>ADMIN</h1>
         <p className="text-gray-700 mb-6">ADMIN USER MANAGEMENT</p> 
 
         {/* --- Search bar --- */}

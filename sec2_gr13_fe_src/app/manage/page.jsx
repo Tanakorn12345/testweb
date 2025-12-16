@@ -2,17 +2,16 @@
 
 import React, { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
-import { Loader2, Edit, X, Clock, Store } from "lucide-react"; // เพิ่ม Icon
+import { useRouter } from "next/navigation"; // 🟢 1. ต้อง Import ตัวนี้
+import { Loader2, Edit, X, Clock, Store } from "lucide-react";
 
-// 🟢 Component: Modal สำหรับตั้งเวลาเปิด-ปิด
+// Component: Modal สำหรับตั้งเวลาเปิด-ปิด (เหมือนเดิม)
 function TimeSettingModal({ currentHours, onClose, onSave, isSaving }) {
-  // แยก string "10:00 - 22:00" เป็น ["10:00", "22:00"]
   const initialTimes = currentHours ? currentHours.split(' - ') : ["09:00", "18:00"];
   const [openTime, setOpenTime] = useState(initialTimes[0]?.trim() || "09:00");
   const [closeTime, setCloseTime] = useState(initialTimes[1]?.trim() || "18:00");
 
   const handleSubmit = () => {
-    // รวมกลับเป็น string "10:00 - 22:00"
     const formattedHours = `${openTime} - ${closeTime}`;
     onSave(formattedHours);
   };
@@ -65,27 +64,37 @@ function TimeSettingModal({ currentHours, onClose, onSave, isSaving }) {
 }
 
 function ManageHome() {
+  const router = useRouter(); // 🟢 2. เรียกใช้ Hook ตรงนี้ (สำคัญมาก!)
+  
   const [todaySales, setTodaySales] = useState(0);
   const [restaurantData, setRestaurantData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  //  State สำหรับ Modal
   const [showTimeModal, setShowTimeModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Function โหลดข้อมูล (เหมือนเดิม)
+  // Function โหลดข้อมูล
   const fetchRestaurantData = async () => {
- 
     setLoading(true);
       try {
         const res = await fetch("/api/manage/restaurant", { cache: "no-store" });
+        
+        // ถ้า 404 (ยังไม่มีร้าน) -> สั่ง Router ให้เด้งไปหน้าสร้างร้าน
+        if (res.status === 404) {
+          router.push('/manage/create'); 
+          return;
+        }
+
         if (!res.ok) throw new Error("Failed to load");
         const data = await res.json();
         setRestaurantData(data.restaurant);
         setTodaySales(Number(data.todaySales) || 0);
       } catch (err) {
-        setError(err.message);
+        // ถ้าเป็น error 404 เราจัดการไปแล้ว ไม่ต้อง set error
+        if (err.message !== "Failed to load") { 
+            setError(err.message);
+        }
       } finally {
         setLoading(false);
       }
@@ -95,7 +104,7 @@ function ManageHome() {
     fetchRestaurantData();
   }, []);
 
-  //  Function บันทึกเวลาเปิด-ปิด
+  // Function บันทึกเวลาเปิด-ปิด
   const handleSaveHours = async (newHours) => {
     setIsSaving(true);
     try {
@@ -107,9 +116,8 @@ function ManageHome() {
 
       if (!res.ok) throw new Error('Failed to update');
 
-      // อัปเดต UI ทันที
       setRestaurantData(prev => ({ ...prev, opening_hours: newHours }));
-      setShowTimeModal(false); // ปิด Modal
+      setShowTimeModal(false);
 
     } catch (err) {
       alert("Error updating hours: " + err.message);
@@ -118,10 +126,9 @@ function ManageHome() {
     }
   };
 
-  // Function สลับเปิด/ปิดร้าน (แถมให้)
+  // Function สลับเปิด/ปิดร้าน
   const toggleShopStatus = async () => {
     const newStatus = !restaurantData.is_open;
-    // Optimistic Update (เปลี่ยนหน้าจอไปก่อนเลย)
     setRestaurantData(prev => ({ ...prev, is_open: newStatus }));
     
     try {
@@ -132,20 +139,21 @@ function ManageHome() {
       });
     } catch (err) {
       alert("Error toggling status");
-      setRestaurantData(prev => ({ ...prev, is_open: !newStatus })); // Revert ถ้า error
+      setRestaurantData(prev => ({ ...prev, is_open: !newStatus }));
     }
   };
 
-
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin text-green-500 w-10 h-10"/></div>;
+  
+  // 🟢 เพิ่มการเช็ค: ถ้าไม่มีข้อมูล (และไม่ใช่ loading) แสดงว่ากำลัง Redirect หรือ Error
+  if (!restaurantData) return null; 
+
   if (error) return <div className="p-10 text-center text-red-500">Error: {error}</div>;
-  if (!restaurantData) return null;
 
   return (
     <div className="bg-white min-h-screen">
       <Navbar />
 
-      {/*  แสดง Modal เมื่อ state เป็น true */}
       {showTimeModal && (
         <TimeSettingModal 
           currentHours={restaurantData.opening_hours} 
@@ -172,12 +180,10 @@ function ManageHome() {
               </p>
               
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                {/* Status Badge */}
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${restaurantData.is_open ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                   {restaurantData.is_open ? 'Open Now' : 'Closed'}
                 </span>
 
-                {/*  ส่วนแสดงเวลาเปิด-ปิด และปุ่มแก้ไข */}
                 <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-3 py-1 rounded-full border border-gray-200">
                    <Clock size={14} />
                    <span>{restaurantData.opening_hours || "Set hours"}</span>
@@ -190,7 +196,6 @@ function ManageHome() {
                    </button>
                 </div>
 
-                {/* Toggle Button */}
                 <button 
                   onClick={toggleShopStatus}
                   className={`text-xs font-medium px-4 py-1 rounded-full border transition duration-200 ${restaurantData.is_open ? 'border-red-200 text-red-600 hover:bg-red-50' : 'border-green-200 text-green-600 hover:bg-green-50'}`}
@@ -211,7 +216,6 @@ function ManageHome() {
           </div>
         </div>
 
-        {/* Sales & Quality (เหมือนเดิม) */}
         <div className="border-b border-gray-200 pb-5 mb-5">
           <h3 className="text-gray-500 text-base">Today's Sales</h3>
           <p className="text-3xl sm:text-4xl font-extrabold mt-1 text-green-700">฿{todaySales.toLocaleString("th-TH", { minimumFractionDigits: 2 })}</p>
@@ -221,7 +225,6 @@ function ManageHome() {
           <p className="text-3xl sm:text-4xl font-extrabold mt-1 text-blue-700">- %</p>
         </div>
 
-        {/* Action Buttons (เหมือนเดิม) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
             <button className="p-4 text-left border-l-4 border-yellow-500 hover:bg-gray-50 transition shadow-sm rounded-r-lg">
                 <div className="flex items-center gap-3"><span className="text-2xl">📢</span><div><p className="text-lg font-semibold">Campaigns</p><p className="text-sm text-gray-500">Manage discounts</p></div></div>

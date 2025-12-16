@@ -15,7 +15,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
       <Navbar />
-      <LoginForm /> {/* 👈 เรียกใช้ LoginForm ที่เราแก้ไขแล้ว */}
+      <LoginForm /> {/* เรียกใช้ LoginForm ที่แก้ไขแล้ว */}
     </div>
   );
 }

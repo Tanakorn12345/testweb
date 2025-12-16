@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { GiFoodTruck } from "react-icons/gi";
-import { History, Store } from "lucide-react"; // 🟢 1. Import Icon Store
+import { History, Store ,User} from "lucide-react"; 
+
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -55,6 +56,15 @@ function Navbar() {
               )}
             </Link>
           </li>
+          {isAuthenticated && user?.role === 'admin'&& (
+              <Link 
+                href="/admin" 
+                className="flex items-center gap-1 text-blue-500  hover:text-blue-600 translate "
+              >
+                
+                <User size={18}/>ADMIN
+              </Link>
+            )}
           
           {/* 🟢 2. ปุ่ม My Orders (เฉพาะ Customer) */}
           {isAuthenticated && user?.role === 'customer' && (

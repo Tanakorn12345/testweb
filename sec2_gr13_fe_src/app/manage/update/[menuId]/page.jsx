@@ -142,7 +142,7 @@ export default function UpdateMenuPage({ params }) { // <-- Keep params prop for
             <div className="p-8 max-w-4xl mx-auto">
                  {/* ... Back button, Header ... */}
                   <button onClick={() => window.history.back()} className="mb-6 inline-flex items-center gap-2 text-gray-600 hover:text-gray-900"><ArrowLeftIcon className="w-5 h-5"/> Back to Overview</button>
-                  <div className="flex items-center gap-3 mb-4"><Utensils className="w-6 h-6 text-black" /><h1 className="text-xl font-bold text-black">Update Menu Item</h1></div>
+                  <div className="flex items-center gap-3 mb-4"><Utensils className="w-6 h-6 text-black" /><h1 className="text-xl font-bold text-green-600">Update Menu Item</h1></div>
                   <p className="text-gray-600 mb-6">Edit the details for this menu item (ID: {menuId}).</p>
 
                 {/* --- Form (เหมือนเดิม) --- */}

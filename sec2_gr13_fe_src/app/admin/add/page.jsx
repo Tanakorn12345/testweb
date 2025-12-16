@@ -5,6 +5,7 @@ import Footer from "../../components/Footer"; // <-- Commented out for Canvas
 import { useState } from "react";
 import { useRouter } from "next/navigation"; // <-- Commented out for Canvas
 import { Loader2, UserPlus } from "lucide-react"; 
+import { FaAddressCard } from "react-icons/fa";
 
 export default function AddUserPage() {
   const router = useRouter(); // <-- Commented out for Canvas
@@ -67,8 +68,9 @@ export default function AddUserPage() {
     <div className="min-h-screen bg-white">
       <Navbar /> 
       <div className="p-8 max-w-4xl mx-auto">
-        <h1 className="text-2xl font-semibold decoration-black/80 decoration-2 mb-1">ADMIN</h1>
-        <p className="text-gray-700 mb-6">ADD NEW USER ACCOUNT</p>
+        <h2 className="flex gap-2.5 text-xl font-semibold decoration-black/80 decoration-2 mb-1 text-green-600">
+          <FaAddressCard className="w-7 h-7  text-black"/>Add User Account</h2>
+        <p className="text-gray-700 mb-6 text-lg">Add new User Account</p>
 
         <form onSubmit={handleSubmit} className="bg-gray-100 p-8 rounded-2xl flex flex-col gap-6 shadow-inner relative">
           
@@ -153,7 +155,7 @@ export default function AddUserPage() {
               className="bg-gray-400 text-white font-semibold px-10 py-2 rounded-full hover:bg-gray-500"
               disabled={submitting}
             >
-              CANCEL
+              Cancel
             </button>
             <button
               type="submit"
@@ -161,7 +163,7 @@ export default function AddUserPage() {
               disabled={submitting}
             >
               {submitting ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
-              {submitting ? "ADDING..." : "ADD USER"}
+              {submitting ? "ADDING..." : "Add User"}
             </button>
           </div>
         </form>
