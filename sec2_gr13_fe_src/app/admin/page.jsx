@@ -233,6 +233,13 @@ function AdminHome() {
             >
               ADD USER
             </button>
+            <Link href="/admin/dashboard">
+                <button 
+                  className="bg-[#5FA373] hover:bg-[#4e8c63] text-white px-8 py-3 rounded-lg shadow"
+                >
+                  OVERVIEW SALES
+                </button>
+            </Link>
         </div>
       </main>
     </div>
